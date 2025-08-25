@@ -2,97 +2,94 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Banco de Leche</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f7fa;
       text-align: center;
-      padding: 30px;
-    }
-    h1 {
-      color: #2c3e50;
+      margin: 40px;
     }
     #total {
       font-size: 2em;
       margin: 20px 0;
-      color: #27ae60;
+      color: #2c3e50;
     }
     input {
       padding: 10px;
+      width: 100px;
       font-size: 1em;
-      width: 120px;
-      margin: 5px;
-      text-align: center;
+      margin: 10px;
     }
     button {
       padding: 10px 20px;
       font-size: 1em;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
+      margin: 10px;
       cursor: pointer;
     }
-    .btn-add {
+    .positivo {
       background-color: #27ae60;
       color: white;
+      border: none;
+      border-radius: 5px;
     }
-    .btn-sub {
-      background-color: #e74c3c;
+    .negativo {
+      background-color: #c0392b;
       color: white;
+      border: none;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
   <h1>Banco de Leche 🍼</h1>
-  <div id="total">Cargando...</div>
-
-  <input type="number" id="cantidad" placeholder="Onzas" />
+  <p>Total disponible:</p>
+  <div id="total">0</div>
 
   <div>
-    <button class="btn-add" onclick="registrarMovimiento(1)">Agregar</button>
-    <button class="btn-sub" onclick="registrarMovimiento(-1)">Consumir</button>
+    <input type="number" id="cantidad" placeholder="Onzas" />
+  </div>
+  <div>
+    <button class="positivo" onclick="registrarMovimiento(1)">➕ Agregar</button>
+    <button class="negativo" onclick="registrarMovimiento(-1)">➖ Consumir</button>
   </div>
 
-  <script>    
+  <script>
+    // Cambia este valor por tu URL de despliegue (termina en /exec)
     const API_URL = "https://script.google.com/macros/s/AKfycbzZ4V2f7BcxyumC_Ib6sGrW1zqWAD05ktlJZlJZEtu3_hhG7uJGZLtr9F2D6lUtfxeX/exec";
 
-    // Cargar total al iniciar
+    // Cargar el total al iniciar
     async function cargarTotal() {
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        document.getElementById("total").textContent = data.total + " onzas";
+        document.getElementById("total").innerText = data.total;
       } catch (err) {
         console.error("Error cargando total:", err);
-        document.getElementById("total").textContent = "Error cargando datos";
       }
     }
 
-    // Registrar movimiento (positivo o negativo)
+    // Registrar un movimiento positivo o negativo
     async function registrarMovimiento(signo) {
       const cantidad = parseInt(document.getElementById("cantidad").value);
       if (isNaN(cantidad) || cantidad <= 0) {
-        alert("Por favor ingresa una cantidad válida");
+        alert("Ingresa una cantidad válida de onzas");
         return;
       }
 
       const movimiento = cantidad * signo;
 
       try {
-        await fetch(`${API_URL}?movimiento=${movimiento}`, { method: "POST" });
+        const res = await fetch(`${API_URL}?movimiento=${movimiento}`);
+        const data = await res.json();
+        document.getElementById("total").innerText = data.total;
         document.getElementById("cantidad").value = "";
-        cargarTotal();
       } catch (err) {
         console.error("Error registrando movimiento:", err);
-        alert("No se pudo registrar el movimiento");
       }
     }
 
-    // Ejecutar carga inicial
+    // Inicializa mostrando el total
     cargarTotal();
   </script>
 </body>
 </html>
-
